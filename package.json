@@ -1,0 +1,15 @@
+{
+  "name": "par-ici-tennis",
+  "version": "1.0.0",
+  "description": "Script to book tennis court automatically",
+  "main": "index.js",
+  "author": "Bertrand d'Aure",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "dayjs": "^1.10.7",
+    "playwright": "^1.15.1"
+  }
+}

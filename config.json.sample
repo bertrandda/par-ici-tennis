@@ -1,0 +1,37 @@
+{
+  "account": {
+    "email": "user.name@host.com",
+    "password": "12345"
+  },
+  "locations": [
+    "Valeyre",
+    "Suzanne Lenglen",
+    "Poliveau"
+  ],
+  "date": "9/10/2021",
+  "hours": [
+    "14",
+    "15",
+    "16",
+    "10",
+    "11"
+  ],
+  "priceType": [
+    "Tarif plein",
+    "Tarif réduit"
+  ],
+  "courtType": [
+    "Découvert",
+    "Couvert"
+  ],
+  "players": [
+    {
+      "lastName": "Lastname1",
+      "firstName": "Firstname1"
+    },
+    {
+      "lastName": "Lastname2",
+      "firstName": "Firstname2"
+    }
+  ]
+}
