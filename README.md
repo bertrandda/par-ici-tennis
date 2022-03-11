@@ -1,6 +1,6 @@
 # par-ici-tennis (*Paris i tennis*)
 
-Script to automatically book a tennis court
+Script to automatically book a tennis court (on https://tennis.paris.fr)
 
 ## Get started
 Create `config.json` file from `config.json.sample` and complete with your preferences.
@@ -17,7 +17,7 @@ Create `config.json` file from `config.json.sample` and complete with your prefe
 
 `players` list of players 3 max (without you)
 
-To pass the payement phase without trouble you need a "carnet de réservation", be carefull you need a "carnet" that maches with your `priceType` & `courtType` [combination](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=rate&view=les_tarifs) chose before
+To pass the payement phase without trouble you need a "carnet de réservation", be carefull you need a "carnet" that maches with your `priceType` & `courtType` [combination](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=rate&view=les_tarifs) selected previously
 
 To run this project locally, install the dependencies and run the script:
 
