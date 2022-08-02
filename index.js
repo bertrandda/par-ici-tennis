@@ -7,10 +7,11 @@ dayjs.extend(customParseFormat)
 
 const bookTennis = async () => {
   console.log(`${dayjs().format()} - Starting searching tennis`)
-  const browser = await chromium.launch({ headless: true, slowMo: 10, timeout: 120000 })
+  const browser = await chromium.launch({ headless: true, slowMo: 0, timeout: 120000 })
 
   console.log(`${dayjs().format()} - Browser started`)
   const page = await browser.newPage()
+  page.setDefaultTimeout(120000)
   await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennis&view=start&full=1')
 
   const [popup] = await Promise.all([
@@ -24,7 +25,8 @@ const bookTennis = async () => {
 
   console.log(`${dayjs().format()} - User connected`)
 
-  await new Promise(r => setTimeout(r, 500));
+  // wait for login redirection before continue
+  await page.waitForSelector('.main-informations')
 
   try {
     for (const location of config.locations) {
@@ -33,18 +35,20 @@ const bookTennis = async () => {
 
       // select tennis location
       await page.type('.tokens-input-text', location)
-      await new Promise(r => setTimeout(r, 300));
-      await page.press('.tokens-input-text', 'ArrowDown');
-      await page.press('.tokens-input-text', 'Enter');
+      await page.waitForSelector(`.tokens-suggestions-list-element >> text="${location}"`)
+      await page.click(`.tokens-suggestions-list-element >> text="${location}"`)
 
       // select date
       await page.click('#when')
-      await new Promise(r => setTimeout(r, 1000));
       const date = dayjs(config.date, 'D/MM/YYYY')
+      await page.waitForSelector(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
       await page.click(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
-      await new Promise(r => setTimeout(r, 300));
+      await page.waitForSelector('.date-picker', { state: 'hidden' })
 
       await page.click('#rechercher')
+
+      // wait until the results page is fully loaded before continue
+      await page.waitForLoadState('domcontentloaded')
 
       hoursLoop:
       for (const hour of config.hours) {
@@ -75,39 +79,44 @@ const bookTennis = async () => {
         continue
       }
 
-      for (const [i, player] of config.players.entries()) {
-        if (i < config.players.length - 1) {
-          await page.click('.addPlayer')
-        }
-      }
-      await new Promise(r => setTimeout(r, 100));
+      await page.waitForLoadState('domcontentloaded')
 
       for (const [i, player] of config.players.entries()) {
+        if (i > 0 && i < config.players.length) {
+          await page.click('.addPlayer')
+        }
+        await page.waitForSelector(`[name="player${i + 1}"]`)
         await page.fill(`[name="player${i + 1}"] >> nth=0`, player.lastName)
         await page.fill(`[name="player${i + 1}"] >> nth=1`, player.firstName)
       }
 
-      await page.keyboard.press('Enter');
+      await page.keyboard.press('Enter')
 
-      await page.click('[paymentmode="existingTicket"]')
+      await page.waitForSelector('#order_select_payment_form #paymentMode', { state: 'attached' })
+      const paymentMode = await page.$('#order_select_payment_form #paymentMode')
+      await paymentMode.evaluate(el => {
+        el.removeAttribute('readonly')
+        el.style.display = 'block'
+      })
+      await paymentMode.fill('existingTicket')
 
-      await page.click('#submit')
+      const submit = await page.$('#order_select_payment_form #envoyer')
+      submit.evaluate(el => el.classList.remove('hide'))
+      await submit.click()
 
-      await new Promise(r => setTimeout(r, 100));
+      await page.waitForSelector('.confirmReservation')
 
-      if (await page.$('.confirmReservation')) {
-        console.log(`${dayjs().format()} - Réservation faite : ${await (
-          await (await page.$('.address')).textContent()
-        ).trim().replace(/( ){2,}/g, ' ')}`)
-        console.log(`pour le ${await (
-          await (await page.$('.date')).textContent()
-        ).trim().replace(/( ){2,}/g, ' ')}`)
-        break
-      }
+      console.log(`${dayjs().format()} - Réservation faite : ${await (
+        await (await page.$('.address')).textContent()
+      ).trim().replace(/( ){2,}/g, ' ')}`)
+      console.log(`pour le ${await (
+        await (await page.$('.date')).textContent()
+      ).trim().replace(/( ){2,}/g, ' ')}`)
+      break
     }
   } catch (e) {
-    console.log(e);
-    await page.screenshot({ path: 'failure.png' });
+    console.log(e)
+    await page.screenshot({ path: 'failure.png' })
   }
 
   await browser.close()
