@@ -81,6 +81,12 @@ const bookTennis = async () => {
 
       await page.waitForLoadState('domcontentloaded')
 
+      if (await page.$('.captcha')) {
+        await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=reservation&view=reservation_creneau')
+        await page.waitForLoadState('domcontentloaded')
+      }
+
+
       for (const [i, player] of config.players.entries()) {
         if (i > 0 && i < config.players.length) {
           await page.click('.addPlayer')
