@@ -2,6 +2,8 @@
 
 Script to automatically book a tennis court (on https://tennis.paris.fr)
 
+**NOTE**: They recently added a CAPTCHA during reservation process. The latest version **should** pass through. If it fails, open an issue with error logs, I will try to find an other way.
+
 ## Get started
 Create `config.json` file from `config.json.sample` and complete with your preferences.
 
@@ -25,3 +27,5 @@ To run this project locally, install the dependencies and run the script:
 npm install
 npm start
 ```
+
+You can start script automatically using cron or equivalent
