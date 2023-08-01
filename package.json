@@ -9,7 +9,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "dayjs": "^1.10.7",
-    "playwright": "^1.15.1"
+    "dayjs": "^1.11.9",
+    "playwright": "^1.36.2"
   }
 }
