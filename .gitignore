@@ -1,3 +1,5 @@
 node_modules/
 config.json
 failure.png
+.vscode/
+.DS_Store
