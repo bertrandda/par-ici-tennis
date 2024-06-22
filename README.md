@@ -43,4 +43,36 @@ Then run the script:
 npm start
 ```
 
-You can start script automatically using cron or equivalent.
+# Run automatically
+
+You can start script automatically using cron or the task scheduler.
+
+## Using a Cron Job (Linux/macOS):
+
+If you're on a Linux or macOS system, you can use cron to schedule tasks.
+
+Open your terminal and type `crontab -e` to edit your cron jobs.
+
+Add a line like this to run your script at 8 AM every day:
+
+```sh
+0 8 * * * cd par-ici-tennis && npm start
+```
+
+Save and exit the editor (crontab -e saves automatically on exit).
+
+## Using Task Scheduler (Windows):
+
+On Windows, you can use Task Scheduler to schedule tasks.
+
+Open Task Scheduler, click "Create Basic Task", and follow the wizard to schedule your script.
+
+Set the trigger to "Daily" and set the time to 8:00 AM.
+
+Specify the action to run your script:
+
+```sh
+ cd par-ici-tennis && npm start
+```
+
+Save and exit.
