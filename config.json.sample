@@ -51,6 +51,14 @@
   "hours": ["19", "20", "18", "09", "21", "08"],
   "priceType": ["Tarif plein", "Tarif réduit"],
   "courtType": ["Découvert", "Couvert"],
+  "surfaceType": [
+    "Gazon synthétique",
+    "Résine",
+    "Terre battue",
+    "Béton poreux",
+    "Bitume",
+    "Synthétique"
+  ],
   "players": [
     {
       "lastName": "Lastname1",

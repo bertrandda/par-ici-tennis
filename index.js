@@ -38,6 +38,16 @@ const bookTennis = async () => {
         "https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=recherche&view=recherche_creneau#!"
       );
 
+      await page.waitForLoadState("domcontentloaded");
+
+      if ((await page.title()) === "Paris | TENNIS - Reservation") {
+        console.log(
+          `${dayjs().format()} - Reservation already in progress. Please cancel before restarting. Exiting...`
+        );
+        await browser.close();
+        return;
+      }
+
       // select tennis location
       await page.type(".tokens-input-text", location);
       await page.waitForSelector(
@@ -49,7 +59,14 @@ const bookTennis = async () => {
 
       // select date
       await page.click("#when");
-      const date = dayjs(config.date, "D/MM/YYYY");
+      const date = config.date
+        ? dayjs(config.date, "D/MM/YYYY")
+        : dayjs().add(6, "day");
+      console.log(
+        `${dayjs().format()} - Search ${
+          config.date ? "" : "for newest courts "
+        }on ${date.format("DD/MM/YYYY")}`
+      );
       await page.waitForSelector(`[dateiso="${date.format("DD/MM/YYYY")}"]`);
       await page.click(`[dateiso="${date.format("DD/MM/YYYY")}"]`);
       await page.waitForSelector(".date-picker", { state: "hidden" });
@@ -60,6 +77,14 @@ const bookTennis = async () => {
       // wait until the results page is fully loaded before continue
       await page.waitForLoadState("domcontentloaded");
 
+      let [
+        bestHour,
+        bestCourtType,
+        bestSurfaceType,
+        bestPriceType,
+        bestBookSlotButton,
+      ] = [null, null, null, null, null];
+
       hoursLoop: for (const hour of config.hours) {
         console.log(`${dayjs().format()} - Search at ${hour}h`);
         const dateDeb = `[datedeb="${date.format(
@@ -67,6 +92,7 @@ const bookTennis = async () => {
         )} ${hour}:00:00"]`;
         if (await page.$(dateDeb)) {
           console.log(`${dayjs().format()} - ${hour}h available`);
+          bestHour = hour;
 
           const inputDateTime = dayjs(
             `${config.date} ${hour}`,
@@ -90,12 +116,13 @@ const bookTennis = async () => {
             await page.evaluate((selector) => {
               document.querySelector(selector).click();
             }, `a[href="#collapse${location.replaceAll(" ", "")}${hour}h"]`);
-            console.log(`${dayjs().format()} - ${hour}h is now visible`);
           }
 
+          console.log(`${dayjs().format()} - Finding best slot...`);
+
           const slots = await page.$$(dateDeb);
+
           for (const slot of slots) {
-            console.log(`${dayjs().format()} - Search for slot`);
             const bookSlotButton = `[courtid="${await slot.getAttribute(
               "courtid"
             )}"]${dateDeb}`;
@@ -104,35 +131,76 @@ const bookTennis = async () => {
                 await page.$(`.price-description:left-of(${bookSlotButton})`)
               ).innerHTML()
             ).split("<br>");
+
+            const surfaceType = (
+              await page.evaluate(
+                (element) => element.textContent,
+                await page.$(".court")
+              )
+            )
+              .match(/-\s+([^-]+)\s+-/)[1]
+              .trim();
+
             if (
               !config.priceType.includes(priceType) ||
-              !config.courtType.includes(courtType)
+              !config.courtType.includes(courtType) ||
+              !config.surfaceType.includes(surfaceType)
             ) {
               continue;
             }
-            console.log(`${dayjs().format()} - Slot found`);
 
-            await page.evaluate((selector) => {
-              document.querySelector(selector).click();
-            }, `button[type="submit"]${bookSlotButton}`);
-
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            const modal = await page.$(
-              '#reservationEnCours[style*="display: block;"]'
-            );
-            if (modal !== null) {
-              console.log(
-                "Another reservation is already booked.\nPlease remove it before running par-ici-tennis.\nExiting..."
-              );
-              await browser.close();
-              return;
+            if (bestCourtType === null) {
+              bestCourtType = courtType;
+              bestSurfaceType = surfaceType;
+              bestPriceType = priceType;
+              bestBookSlotButton = bookSlotButton;
+            } else if (
+              config.courtType.indexOf(courtType) <=
+              config.courtType.indexOf(bestCourtType)
+            ) {
+              if (
+                config.surfaceType.indexOf(surfaceType) <=
+                config.surfaceType.indexOf(bestSurfaceType)
+              ) {
+                if (
+                  config.priceType.indexOf(priceType) <=
+                  config.priceType.indexOf(bestPriceType)
+                ) {
+                  bestCourtType = courtType;
+                  bestSurfaceType = surfaceType;
+                  bestPriceType = priceType;
+                  bestBookSlotButton = bookSlotButton;
+                }
+              }
             }
-
-            await page.waitForNavigation({ waitUntil: "domcontentloaded" });
-
-            break hoursLoop;
           }
+
+          console.log(
+            `${dayjs().format()} - Best slot found: ${bestCourtType} - ${bestSurfaceType} - ${bestPriceType}`
+          );
+
+          await page.evaluate((selector) => {
+            document.querySelector(selector).click();
+          }, `button[type="submit"]${bestBookSlotButton}`);
+
+          console.log(`${dayjs().format()} - Slot selected`);
+
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          const modal = await page.$(
+            '#reservationEnCours[style*="display: block;"]'
+          );
+          if (modal !== null) {
+            console.log(
+              "Another reservation is already booked.\nPlease remove it before running par-ici-tennis.\nExiting..."
+            );
+            await browser.close();
+            return;
+          }
+
+          await page.waitForLoadState("domcontentloaded");
+
+          break hoursLoop;
         }
       }
 
@@ -188,28 +256,31 @@ const bookTennis = async () => {
 
       console.log(`${dayjs().format()} - Submit clicked`);
 
-      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+      await page.waitForLoadState("domcontentloaded");
 
       if ((await page.title()) === "Error") {
         console.log(
-          `${dayjs().format()} - Réservation gratuite effectuée : ${hour} le ${date.format(
-            "DD/MM/YYY"
-          )}  à ${location}`
+          `${dayjs().format()} - FREE reservation made: at ${bestHour}h on ${date.format(
+            "DD/MM/YYYY"
+          )} at ${location} on ${bestSurfaceType} ${bestCourtType} in ${bestPriceType}`
         );
       } else {
         await page.waitForSelector(".confirmReservation");
 
         console.log(
-          `${dayjs().format()} - Réservation faite : ${await (
+          `${dayjs().format()} - Reservation made: ${await (
             await (await page.$(".address")).textContent()
           )
             .trim()
             .replace(/( ){2,}/g, " ")}`
         );
         console.log(
-          `pour le ${await (await (await page.$(".date")).textContent())
+          `on ${await (await (await page.$(".date")).textContent())
             .trim()
             .replace(/( ){2,}/g, " ")}`
+        );
+        console.log(
+          `on ${bestSurfaceType} ${bestCourtType} in ${bestPriceType}`
         );
       }
       break;
