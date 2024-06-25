@@ -63,16 +63,10 @@ Save and exit the editor (crontab -e saves automatically on exit).
 
 ## Using Task Scheduler (Windows):
 
-On Windows, you can use Task Scheduler to schedule tasks.
+On Windows, you can use the Task Scheduler.
 
-Open Task Scheduler, click "Create Basic Task", and follow the wizard to schedule your script.
-
-Set the trigger to "Daily" and set the time to 8:00 AM.
-
-Specify the action to run your script:
+Open your terminal and type the following to add a new task every day at 8.
 
 ```sh
- cd par-ici-tennis && npm start
+schtasks /create /tn par-ici-tennis /tr "cd par-ici-tennis && npm start" /sc daily /st 08:00
 ```
-
-Save and exit.
