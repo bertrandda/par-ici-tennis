@@ -14,14 +14,10 @@ const bookTennis = async () => {
   page.setDefaultTimeout(120000)
   await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennis&view=start&full=1')
 
-  const [popup] = await Promise.all([
-    page.waitForEvent('popup'),
-    page.click('#button_suivi_inscription'),
-  ])
-  await popup.waitForLoadState()
-  await popup.fill('#username-login', config.account.email)
-  await popup.fill('#password-login', config.account.password)
-  await popup.click('section >> button')
+  await page.click('#button_suivi_inscription'),
+  await page.fill('#username', config.account.email)
+  await page.fill('#password', config.account.password)
+  await page.click('#form-login >> button')
 
   console.log(`${dayjs().format()} - User connected`)
 
@@ -40,7 +36,7 @@ const bookTennis = async () => {
 
       // select date
       await page.click('#when')
-      const date = dayjs(config.date, 'D/MM/YYYY')
+      const date = config.date ? dayjs(config.date, 'D/MM/YYYY') : dayjs().add(6, 'days')
       await page.waitForSelector(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
       await page.click(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
       await page.waitForSelector('.date-picker', { state: 'hidden' })
