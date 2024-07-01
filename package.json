@@ -6,7 +6,8 @@
   "author": "Bertrand d'Aure",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "start-dry": "node index.js --dry-run"
   },
   "dependencies": {
     "dayjs": "^1.11.9",
