@@ -9,7 +9,7 @@ Create `config.json` file from `config.json.sample` and complete with your prefe
 
 `location`: a list of courts ordered by preference - [full list](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennisParisien&view=les_tennis_parisiens)
 
-`date` a string representing a date formated D/M/YYYY
+`date` a string representing a date formated D/M/YYYY, if not set the date 6 days in future is used
 
 `hours` a list of hours ordered by preference
 
@@ -21,11 +21,22 @@ Create `config.json` file from `config.json.sample` and complete with your prefe
 
 To pass the payement phase without trouble you need a "carnet de réservation", be carefull you need a "carnet" that maches with your `priceType` & `courtType` [combination](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=rate&view=les_tarifs) selected previously
 
-To run this project locally, install the dependencies and run the script:
+To run this project locally, install the dependencies
 
 ```sh
 npm install
+```
+
+and run the script:
+
+```sh
 npm start
+```
+
+To test your configuration, you can run this project in dry-run mode. It will check court availability but no reservations will be made:
+
+```sh
+npm run start-dry
 ```
 
 You can start script automatically using cron or equivalent
