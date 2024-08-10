@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Script to book tennis court automatically",
   "main": "index.js",
-  "author": "Bertrand d'Aure and Nicolas Scholten",
+  "author": "Bertrand d'Aure",
   "license": "MIT",
   "scripts": {
     "start": "node index.js"
