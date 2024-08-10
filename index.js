@@ -6,7 +6,14 @@ const config = require("./config.json");
 dayjs.extend(customParseFormat);
 
 const bookTennis = async () => {
-  console.log(`${dayjs().format()} - Starting searching tennis`);
+  const DRY_RUN_MODE = process.argv.includes('--dry-run')
+  if (DRY_RUN_MODE) {
+    console.log('----- DRY RUN START -----')
+    console.log('Script lancé en mode DRY RUN. Afin de tester votre configuration, une recherche va être lancé mais AUCUNE réservation ne sera réalisée')
+  }
+
+  console.log(`${dayjs().format()} - Starting searching tennis`)
+  const browser = await chromium.launch({ headless: true, slowMo: 0, timeout: 120000 })
 
   const browser = await chromium.launch({
     headless: true,
@@ -32,6 +39,7 @@ const bookTennis = async () => {
   await page.waitForSelector(".main-informations");
 
   try {
+    locationsLoop:
     for (const location of config.locations) {
       console.log(`${dayjs().format()} - Search at ${location}`);
       await page.goto(
@@ -70,7 +78,6 @@ const bookTennis = async () => {
       await page.waitForSelector(`[dateiso="${date.format("DD/MM/YYYY")}"]`);
       await page.click(`[dateiso="${date.format("DD/MM/YYYY")}"]`);
       await page.waitForSelector(".date-picker", { state: "hidden" });
-
       await page.click("#rechercher");
       console.log(`${dayjs().format()} - Search done`);
 
@@ -247,6 +254,18 @@ const bookTennis = async () => {
         el.style.display = "block";
       });
       await paymentMode.fill("existingTicket");
+      
+      if (DRY_RUN_MODE) {
+        console.log(`${dayjs().format()} - Fausse réservation faite : ${location}`)
+        console.log(`pour le ${date.format('YYYY/MM/DD')} à ${selectedHour}h`)
+        console.log('----- DRY RUN END -----')
+        console.log("Pour réellement réserver un crénau, relancez le script sans le paramètre --dry-run")
+
+        await page.click('#previous')
+        await page.click('#btnCancelBooking')
+
+        break locationsLoop
+      }
 
       console.log(`${dayjs().format()} - Payment mode selected`);
 

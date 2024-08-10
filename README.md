@@ -43,6 +43,14 @@ Then run the script:
 npm start
 ```
 
+# Dry-run mode
+
+To test your configuration, you can run this project in dry-run mode. It will check court availability but no reservations will be made:
+
+```sh
+npm run start-dry
+```
+
 # Run automatically
 
 You can start script automatically using cron or the task scheduler.
