@@ -4,25 +4,60 @@
     "password": "12345"
   },
   "locations": [
-    "Valeyre",
+    "Alain Mimoun",
+    "Amandiers",
+    "Atlantique",
+    "Aurelle de Paladines",
+    "Bertrand Dauvin",
+    "Bobigny",
+    "Broquedis - Asnières",
+    "Candie",
+    "Carnot",
+    "Château des Rentiers",
+    "Cordelières",
+    "Courcelles",
+    "Croix Nivert",
+    "Docteurs Déjerine",
+    "Dunois",
+    "Edouard Pailleron",
+    "Elisabeth",
+    "Georges Carpentier",
+    "Halle Fret",
+    "Henry de Montherlant",
+    "Jandelle",
+    "Jesse Owens",
+    "Jules Ladoumègue",
+    "La Faluère",
+    "Léo Lagrange",
+    "Max Rousié",
+    "Moureu - Baudricourt",
+    "NEUVE SAINT PIERRE",
+    "Niox",
+    "Paul Barruel",
+    "Philippe Auguste",
+    "Poissonniers",
+    "Poliveau",
+    "Poterne des Peupliers",
+    "Puteaux",
+    "René et André Mourlon",
+    "Rigoulot - La Plaine",
+    "Sablonnière",
+    "Sept arpents",
     "Suzanne Lenglen",
-    "Poliveau"
+    "Thiéré",
+    "Valeyre"
   ],
-  "date": "9/10/2021",
-  "hours": [
-    "14",
-    "15",
-    "16",
-    "10",
-    "11"
-  ],
-  "priceType": [
-    "Tarif plein",
-    "Tarif réduit"
-  ],
-  "courtType": [
-    "Découvert",
-    "Couvert"
+  "date": "22/06/2024",
+  "hours": ["19", "20", "18", "09", "21", "08"],
+  "priceType": ["Tarif plein", "Tarif réduit"],
+  "courtType": ["Découvert", "Couvert"],
+  "surfaceType": [
+    "Gazon synthétique",
+    "Résine",
+    "Terre battue",
+    "Béton poreux",
+    "Bitume",
+    "Synthétique"
   ],
   "players": [
     {
