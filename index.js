@@ -2,7 +2,7 @@ import { chromium } from 'playwright'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat.js'
 import { parseqAPI } from './lib/parseq.js'
-import config from './config.json' assert { type: 'json' }
+import { config } from './staticFiles.js'
 
 dayjs.extend(customParseFormat)
 
@@ -98,7 +98,7 @@ const bookTennis = async () => {
           if (i > 0) {
             const iframeDetached = new Promise((resolve) => {
               page.on('framedetached', () => resolve('New captcha'))
-            });
+            })
             await iframeDetached
           }
           const captchaIframe = await page.frameLocator('#li-antibot-iframe')
@@ -108,8 +108,8 @@ const bookTennis = async () => {
           await captchaIframe.locator('#li-antibot-validate').click()
 
           note = await captchaIframe.locator('#li-antibot-check-note')
-          i++;
-        } while (await note.innerText() !== 'Vérifié avec succès');
+          i++
+        } while (await note.innerText() !== 'Vérifié avec succès')
 
         await page.click('#submitControle')
       }
@@ -138,7 +138,7 @@ const bookTennis = async () => {
         console.log(`${dayjs().format()} - Fausse réservation faite : ${location}`)
         console.log(`pour le ${date.format('YYYY/MM/DD')} à ${selectedHour}h`)
         console.log('----- DRY RUN END -----')
-        console.log("Pour réellement réserver un crénau, relancez le script sans le paramètre --dry-run")
+        console.log('Pour réellement réserver un crénau, relancez le script sans le paramètre --dry-run')
 
         await page.click('#previous')
         await page.click('#btnCancelBooking')
