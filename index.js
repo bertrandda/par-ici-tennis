@@ -38,7 +38,7 @@ const bookTennis = async () => {
       await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=recherche&view=recherche_creneau#!')
 
       // select tennis location
-      await page.type('.tokens-input-text', location)
+      await page.type('.tokens-input-text', `${location} `)
       await page.waitForSelector(`.tokens-suggestions-list-element >> text="${location}"`)
       await page.click(`.tokens-suggestions-list-element >> text="${location}"`)
 
