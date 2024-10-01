@@ -5,12 +5,23 @@
   "main": "index.js",
   "author": "Bertrand d'Aure",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
-    "start-dry": "node index.js --dry-run"
+    "start-dry": "node index.js --dry-run",
+    "eslint": "eslint ."
   },
   "dependencies": {
+    "@gradio/client": "^1.4.0",
     "dayjs": "^1.11.9",
     "playwright": "^1.36.2"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.25.1",
+    "@babel/plugin-syntax-import-assertions": "^7.25.6",
+    "@eslint/js": "^9.9.1",
+    "@stylistic/eslint-plugin-js": "^2.8.0",
+    "eslint": "^9.9.1",
+    "globals": "^15.9.0"
   }
 }

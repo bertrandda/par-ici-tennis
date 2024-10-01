@@ -1,7 +1,8 @@
-const { chromium } = require('playwright')
-const dayjs = require('dayjs')
-const customParseFormat = require('dayjs/plugin/customParseFormat')
-const config = require('./config.json')
+import { chromium } from 'playwright'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat.js'
+import { parseqAPI } from './lib/parseq.js'
+import { config } from './staticFiles.js'
 
 dayjs.extend(customParseFormat)
 
@@ -37,7 +38,7 @@ const bookTennis = async () => {
       await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=recherche&view=recherche_creneau#!')
 
       // select tennis location
-      await page.type('.tokens-input-text', location)
+      await page.type('.tokens-input-text', `${location} `)
       await page.waitForSelector(`.tokens-suggestions-list-element >> text="${location}"`)
       await page.click(`.tokens-suggestions-list-element >> text="${location}"`)
 
@@ -87,8 +88,30 @@ const bookTennis = async () => {
       await page.waitForLoadState('domcontentloaded')
 
       if (await page.$('.captcha')) {
-        await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=reservation&view=reservation_creneau')
-        await page.waitForLoadState('domcontentloaded')
+        let i = 0
+        let note
+        do {
+          if (i > 2) {
+            throw new Error('Can\'t resolve captcha, reservation cancelled')
+          }
+
+          if (i > 0) {
+            const iframeDetached = new Promise((resolve) => {
+              page.on('framedetached', () => resolve('New captcha'))
+            })
+            await iframeDetached
+          }
+          const captchaIframe = await page.frameLocator('#li-antibot-iframe')
+          const captcha = await captchaIframe.locator('#li-antibot-questions-container img').screenshot({ path: 'img/captcha.png' })
+          const resCaptcha = await parseqAPI(new Blob([captcha]))
+          await captchaIframe.locator('#li-antibot-answer').type(resCaptcha)
+          await captchaIframe.locator('#li-antibot-validate').click()
+
+          note = await captchaIframe.locator('#li-antibot-check-note')
+          i++
+        } while (await note.innerText() !== 'Vérifié avec succès')
+
+        await page.click('#submitControle')
       }
 
 
@@ -115,7 +138,7 @@ const bookTennis = async () => {
         console.log(`${dayjs().format()} - Fausse réservation faite : ${location}`)
         console.log(`pour le ${date.format('YYYY/MM/DD')} à ${selectedHour}h`)
         console.log('----- DRY RUN END -----')
-        console.log("Pour réellement réserver un crénau, relancez le script sans le paramètre --dry-run")
+        console.log('Pour réellement réserver un crénau, relancez le script sans le paramètre --dry-run')
 
         await page.click('#previous')
         await page.click('#btnCancelBooking')
@@ -139,7 +162,7 @@ const bookTennis = async () => {
     }
   } catch (e) {
     console.log(e)
-    await page.screenshot({ path: 'failure.png' })
+    await page.screenshot({ path: 'img/failure.png' })
   }
 
   await browser.close()
