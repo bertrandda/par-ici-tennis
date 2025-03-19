@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat.js'
-import { parseqAPI } from './lib/parseq.js'
+import { huggingFaceAPI } from './lib/huggingface.js'
 import { config } from './staticFiles.js'
 
 dayjs.extend(customParseFormat)
@@ -103,15 +103,13 @@ const bookTennis = async () => {
           }
           const captchaIframe = await page.frameLocator('#li-antibot-iframe')
           const captcha = await captchaIframe.locator('#li-antibot-questions-container img').screenshot({ path: 'img/captcha.png' })
-          const resCaptcha = await parseqAPI(new Blob([captcha]))
+          const resCaptcha = await huggingFaceAPI(new Blob([captcha]))
           await captchaIframe.locator('#li-antibot-answer').type(resCaptcha)
           await captchaIframe.locator('#li-antibot-validate').click()
 
           note = await captchaIframe.locator('#li-antibot-check-note')
           i++
         } while (await note.innerText() !== 'Vérifié avec succès')
-
-        await page.click('#submitControle')
       }
 
 
