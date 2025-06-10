@@ -35,6 +35,9 @@ npm start
 
 To test your configuration, you can run this project in dry-run mode. It will check court availability but no reservations will be made:
 
+> [!IMPORTANT]
+> due to a bug on the booking website, it is temporarily impossible to cancel a booking before final payment. The dry-run is therefore non-functional, and the command has been deactivated to avoid leaving an unsuccessful order. You can still try out using the classic launch command `npm start`, but you'll have to cancel the reservation manually (possible up to 24 hours before the reservation date).
+
 ```sh
 npm run start-dry
 ```

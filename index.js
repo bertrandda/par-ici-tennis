@@ -38,7 +38,7 @@ const bookTennis = async () => {
       await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=recherche&view=recherche_creneau#!')
 
       // select tennis location
-      await page.type('.tokens-input-text', `${location} `)
+      await page.locator('.tokens-input-text').pressSequentially(`${location} `)
       await page.waitForSelector(`.tokens-suggestions-list-element >> text="${location}"`)
       await page.click(`.tokens-suggestions-list-element >> text="${location}"`)
 
@@ -104,7 +104,8 @@ const bookTennis = async () => {
           const captchaIframe = await page.frameLocator('#li-antibot-iframe')
           const captcha = await captchaIframe.locator('#li-antibot-questions-container img').screenshot({ path: 'img/captcha.png' })
           const resCaptcha = await huggingFaceAPI(new Blob([captcha]))
-          await captchaIframe.locator('#li-antibot-answer').type(resCaptcha)
+          await captchaIframe.locator('#li-antibot-answer').pressSequentially(resCaptcha)
+          await new Promise(resolve => setTimeout(resolve, 500))
           await captchaIframe.locator('#li-antibot-validate').click()
 
           note = await captchaIframe.locator('#li-antibot-check-note')
