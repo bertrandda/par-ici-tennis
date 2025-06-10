@@ -7,14 +7,14 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "postinstall": "npx playwright install chromium",
     "start": "node index.js",
-    "start-dry": "node index.js --dry-run",
     "eslint": "eslint ."
   },
   "dependencies": {
-    "@gradio/client": "^1.4.0",
-    "dayjs": "^1.11.9",
-    "playwright": "^1.36.2"
+    "@gradio/client": "^1.15.2",
+    "dayjs": "^1.11.13",
+    "playwright": "^1.52.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.1",
