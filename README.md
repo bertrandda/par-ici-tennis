@@ -26,17 +26,40 @@ Script to automatically book a tennis court (on https://tennis.paris.fr)
 
 Create `config.json` file from `config.json.sample` and complete with your preferences.
 
-`location`: a list of courts ordered by preference - [full list](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennisParisien&view=les_tennis_parisiens)
+- `location`: a list of courts ordered by preference - [full list](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennisParisien&view=les_tennis_parisiens)
 
-`date` a string representing a date formated D/M/YYYY, if not set the date 6 days in future is used
+You can use two formats for the `locations` field:
 
-`hours` a list of hours ordered by preference
+1) **Array format:**
+  ```json
+  "locations": [
+    "Valeyre",
+    "Suzanne Lenglen",
+    "Poliveau"
+  ]
+  ```
+  Use this if you want to search all courts at each location, in order of preference.
 
-`priceType` an array containing price type you can book `Tarif plein` and/or `Tarif réduit`
+2) **Object format (with court numbers):**
+  ```json
+  "locations": {
+    "Suzanne Lenglen": [5, 7, 11],
+    "Henry de Montherlant": []
+  }
+  ```
+  Use this if you want to specify court numbers for each location. An empty array means all courts at that location will be considered.
 
-`courtType` an array containing court type you can book `Découvert` and/or `Couvert`
+Choose the format that best matches your preferences.
 
-`players` list of players 3 max (without you)
+- `date` a string representing a date formated D/M/YYYY, if not set the date 6 days in future is used
+
+- `hours` a list of hours ordered by preference
+
+- `priceType` an array containing price type you can book `Tarif plein` and/or `Tarif réduit`
+
+- `courtType` an array containing court type you can book `Découvert` and/or `Couvert`
+
+- `players` list of players 3 max (without you)
 
 ### Payment process
 
