@@ -32,8 +32,9 @@ const bookTennis = async () => {
   await page.waitForSelector('.main-informations')
 
   try {
+    const locations = !Array.isArray(config.locations) ? Object.keys(config.locations) : config.locations
     locationsLoop:
-    for (const location of config.locations) {
+    for (const location of locations) {
       console.log(`${dayjs().format()} - Search at ${location}`)
       await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=recherche&view=recherche_creneau#!')
 
@@ -63,9 +64,17 @@ const bookTennis = async () => {
             await page.click(`#head${location.replaceAll(' ', '')}${hour}h .panel-title`)
           }
 
+          const courtNumbers = !Array.isArray(config.locations) ? config.locations[location] : []
           const slots = await page.$$(dateDeb)
           for (const slot of slots) {
             const bookSlotButton = `[courtid="${await slot.getAttribute('courtid')}"]${dateDeb}`
+            if (courtNumbers.length > 0) {
+              const courtName = await (await (await page.$(`.court:left-of(${bookSlotButton})`)).innerText()).trim()
+              if (!courtNumbers.includes(parseInt(courtName.match(/Court N°(\d+)/)[1]))) {
+                continue
+              }
+            }
+
             const [priceType, courtType] = await (
               await (await page.$(`.price-description:left-of(${bookSlotButton})`)).innerHTML()
             ).split('<br>')
@@ -156,6 +165,9 @@ const bookTennis = async () => {
       ).trim().replace(/( ){2,}/g, ' ')}`)
       console.log(`pour le ${await (
         await (await page.$('.date')).textContent()
+      ).trim().replace(/( ){2,}/g, ' ')}`)
+      console.log(`sur le ${await (
+        await (await page.$('.court')).textContent()
       ).trim().replace(/( ){2,}/g, ' ')}`)
       break
     }
