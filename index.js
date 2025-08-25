@@ -3,6 +3,8 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat.js'
 import { huggingFaceAPI } from './lib/huggingface.js'
 import { config } from './staticFiles.js'
+import { writeFileSync } from 'fs'
+import { createEvent } from 'ics'
 
 dayjs.extend(customParseFormat)
 
@@ -69,15 +71,13 @@ const bookTennis = async () => {
           for (const slot of slots) {
             const bookSlotButton = `[courtid="${await slot.getAttribute('courtid')}"]${dateDeb}`
             if (courtNumbers.length > 0) {
-              const courtName = await (await (await page.$(`.court:left-of(${bookSlotButton})`)).innerText()).trim()
+              const courtName = (await (await page.$(`.court:left-of(${bookSlotButton})`)).innerText()).trim()
               if (!courtNumbers.includes(parseInt(courtName.match(/Court N°(\d+)/)[1]))) {
                 continue
               }
             }
 
-            const [priceType, courtType] = await (
-              await (await page.$(`.price-description:left-of(${bookSlotButton})`)).innerHTML()
-            ).split('<br>')
+            const [priceType, courtType] = (await (await page.$(`.price-description:left-of(${bookSlotButton})`)).innerHTML()).split('<br>')
             if (!config.priceType.includes(priceType) || !config.courtType.includes(courtType)) {
               continue
             }
@@ -160,15 +160,40 @@ const bookTennis = async () => {
 
       await page.waitForSelector('.confirmReservation')
 
-      console.log(`${dayjs().format()} - Réservation faite : ${await (
-        await (await page.$('.address')).textContent()
-      ).trim().replace(/( ){2,}/g, ' ')}`)
-      console.log(`pour le ${await (
-        await (await page.$('.date')).textContent()
-      ).trim().replace(/( ){2,}/g, ' ')}`)
-      console.log(`sur le ${await (
-        await (await page.$('.court')).textContent()
-      ).trim().replace(/( ){2,}/g, ' ')}`)
+      // Extract reservation details
+      const address = (await (await page.$('.address')).textContent()).trim().replace(/( ){2,}/g, ' ')
+      const dateStr = (await (await page.$('.date')).textContent()).trim().replace(/( ){2,}/g, ' ')
+      const court = (await (await page.$('.court')).textContent()).trim().replace(/( ){2,}/g, ' ')
+
+      console.log(`${dayjs().format()} - Réservation faite : ${address}`)
+      console.log(`pour le ${dateStr}`)
+      console.log(`sur le ${court}`)
+
+      try {
+        const [day, month, year] = [date.date(), date.month() + 1, date.year()]
+        const hourMatch = dateStr.match(/(\d{2})h/)
+        const hour = hourMatch ? Number(hourMatch[1]) : 12
+        const start = [year, month, day, hour, 0]
+        const duration = { hours: 1, minutes: 0 }
+        const event = {
+          start,
+          duration,
+          title: 'Réservation Tennis',
+          description: `Court: ${court}\nAdresse: ${address}`,
+          location: address,
+          status: 'CONFIRMED',
+        }
+        createEvent(event, (error, value) => {
+          if (!error) {
+            writeFileSync('event.ics', value)
+            console.log('ICS file created.')
+          } else {
+            console.log('ICS creation error:', error)
+          }
+        })
+      } catch (err) {
+        console.log('ICS file creation failed:', err)
+      }
       break
     }
   } catch (e) {
