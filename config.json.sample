@@ -33,5 +33,9 @@
       "lastName": "Lastname2",
       "firstName": "Firstname2"
     }
-  ]
+  ],
+  "ntfy": {
+    "enable": false,
+    "topic": "YOUR-OWN-TOPIC"
+  }
 }
