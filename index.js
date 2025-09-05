@@ -1,10 +1,11 @@
 import { chromium } from 'playwright'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat.js'
-import { huggingFaceAPI } from './lib/huggingface.js'
-import { config } from './staticFiles.js'
 import { writeFileSync } from 'fs'
 import { createEvent } from 'ics'
+import { huggingFaceAPI } from './lib/huggingface.js'
+import { config } from './staticFiles.js'
+import { notify } from './lib/ntfy.js'
 
 dayjs.extend(customParseFormat)
 
@@ -169,31 +170,30 @@ const bookTennis = async () => {
       console.log(`pour le ${dateStr}`)
       console.log(`sur le ${court}`)
 
-      try {
-        const [day, month, year] = [date.date(), date.month() + 1, date.year()]
-        const hourMatch = dateStr.match(/(\d{2})h/)
-        const hour = hourMatch ? Number(hourMatch[1]) : 12
-        const start = [year, month, day, hour, 0]
-        const duration = { hours: 1, minutes: 0 }
-        const event = {
-          start,
-          duration,
-          title: 'Réservation Tennis',
-          description: `Court: ${court}\nAdresse: ${address}`,
-          location: address,
-          status: 'CONFIRMED',
-        }
-        createEvent(event, (error, value) => {
-          if (!error) {
-            writeFileSync('event.ics', value)
-            console.log('ICS file created.')
-          } else {
-            console.log('ICS creation error:', error)
-          }
-        })
-      } catch (err) {
-        console.log('ICS file creation failed:', err)
+      const [day, month, year] = [date.date(), date.month() + 1, date.year()]
+      const hourMatch = dateStr.match(/(\d{2})h/)
+      const hour = hourMatch ? Number(hourMatch[1]) : 12
+      const start = [year, month, day, hour, 0]
+      const duration = { hours: 1, minutes: 0 }
+      const event = {
+        start,
+        duration,
+        title: 'Réservation Tennis',
+        description: `Court: ${court}\nAdresse: ${address}`,
+        location: address,
+        status: 'CONFIRMED',
       }
+      createEvent(event, async (error, value) => {
+        if (error) {
+          console.log('ICS creation error:', error)
+          return
+        }
+
+        writeFileSync('event.ics', value)
+        if (config.ntfy?.enable === true) {
+          await notify(Buffer.from(value, 'utf8'), `Confirmation pour le ${date.format('DD/MM/YYYY')}`, config.ntfy)
+        }
+      })
       break
     }
   } catch (e) {
