@@ -33,5 +33,12 @@
       "lastName": "Lastname2",
       "firstName": "Firstname2"
     }
-  ]
+  ],
+  "ntfy": {
+    "enable": false,
+    "topic": "YOUR-OWN-TOPIC"
+  },
+  "ai": {
+    "space": "FatBoyEnglish/Text_Captcha_breaker"
+  }
 }

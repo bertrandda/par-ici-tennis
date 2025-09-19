@@ -11,6 +11,8 @@ Script to automatically book a tennis court (on https://tennis.paris.fr)
 - [Prerequisites](#prerequisites)
 - [Get started](#get-started)
   - [Configuration](#configuration)
+  - [Ntfy notifications (optional)](#ntfy-notifications-optional)
+  - [AI CAPTCHA solver (optional)](#ai-captcha-solver-optional)
   - [Payment process](#payment-process)
   - [Running](#running)
 - [Contributing](#contributing)
@@ -60,6 +62,46 @@ Choose the format that best matches your preferences.
 - `courtType` an array containing court type you can book `Découvert` and/or `Couvert`
 
 - `players` list of players 3 max (without you)
+
+### Ntfy notifications (optional)
+
+You can configure the script to send notifications with the reservation details and the ics file via [ntfy](https://ntfy.sh), a simple pub-sub notification service.
+
+To receive notifications:
+- Choose a unique topic name (e.g., `YOUR-UNIQUE-TOPIC-NAME` choose something unique to avoid conflicts and complex because there is no password for subscription)
+- Subscribe to your topic using the [ntfy mobile app](https://ntfy.sh/docs/subscribe/phone/) or [web interface](https://ntfy.sh/)
+
+To enable ntfy notifications in script, add the following configuration to your `config.json`:
+
+```json
+"ntfy": {
+  "enable": true,
+  "topic": "YOUR-UNIQUE-TOPIC-NAME"
+}
+```
+
+Configuration options:
+- `enable`: set to `true` to enable ntfy notifications
+- `topic`: your unique ntfy topic name choose previously
+- `domain` (optional): custom ntfy server domain (`ntfy.sh` used if empty)
+
+Notification example:
+
+![Notification example](doc/ntfy.png)
+
+### AI CAPTCHA solver (optional)
+
+The script uses an AI model to automatically solve CAPTCHAs during the reservation process. By default, it uses a Hugging Face Space, but you can configure a custom one if the default one is down.
+
+You can find alternative spaces here https://huggingface.co/spaces, search `Text_Captcha_breaker` and select a running space. To use it, add the following configuration at the end of your `config.json`:
+
+```json
+"ai": {
+  "space": "hf-username/Text_Captcha_breaker"
+}
+```
+
+**Note**: The custom space must be compatible with the expected API format (accepting an image input and returning text output), that why you need to select a `Text_Captcha_breaker` space.
 
 ### Payment process
 
