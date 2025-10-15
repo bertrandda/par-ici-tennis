@@ -37,8 +37,5 @@
   "ntfy": {
     "enable": false,
     "topic": "YOUR-OWN-TOPIC"
-  },
-  "ai": {
-    "space": "FatBoyEnglish/Text_Captcha_breaker"
   }
 }
