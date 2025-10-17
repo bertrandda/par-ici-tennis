@@ -3,7 +3,6 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat.js'
 import { writeFileSync } from 'fs'
 import { createEvent } from 'ics'
-import { huggingFaceAPI } from './lib/huggingface.js'
 import { config } from './staticFiles.js'
 import { notify } from './lib/ntfy.js'
 
@@ -21,6 +20,7 @@ const bookTennis = async () => {
 
   console.log(`${dayjs().format()} - Browser started`)
   const page = await browser.newPage()
+  await page.route('https://captcha.liveidentity.com/**invisible-captcha-infos**', (route) => route.abort())
   page.setDefaultTimeout(120000)
   await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennis&view=start&full=1')
 
@@ -95,34 +95,7 @@ const bookTennis = async () => {
         continue
       }
 
-      await page.waitForLoadState('domcontentloaded')
-
-      if (await page.$('.captcha')) {
-        let i = 0
-        let note
-        do {
-          if (i > 2) {
-            throw new Error('Can\'t resolve captcha, reservation cancelled')
-          }
-
-          if (i > 0) {
-            const iframeDetached = new Promise((resolve) => {
-              page.on('framedetached', () => resolve('New captcha'))
-            })
-            await iframeDetached
-          }
-          const captchaIframe = await page.frameLocator('#li-antibot-iframe')
-          const captcha = await captchaIframe.locator('#li-antibot-questions-container img').screenshot({ path: 'img/captcha.png' })
-          const resCaptcha = await huggingFaceAPI(new Blob([captcha]))
-          await captchaIframe.locator('#li-antibot-answer').pressSequentially(resCaptcha)
-          await new Promise(resolve => setTimeout(resolve, 500))
-          await captchaIframe.locator('#li-antibot-validate').click()
-
-          note = await captchaIframe.locator('#li-antibot-check-note')
-          i++
-        } while (await note.innerText() !== 'Vérifié avec succès')
-      }
-
+      await page.waitForSelector('.order-steps-infos h2 >> text="1 / 3 - Validation du court"')
 
       for (const [i, player] of config.players.entries()) {
         if (i > 0 && i < config.players.length) {

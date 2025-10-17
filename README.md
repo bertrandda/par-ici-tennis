@@ -12,7 +12,6 @@ Script to automatically book a tennis court (on https://tennis.paris.fr)
 - [Get started](#get-started)
   - [Configuration](#configuration)
   - [Ntfy notifications (optional)](#ntfy-notifications-optional)
-  - [AI CAPTCHA solver (optional)](#ai-captcha-solver-optional)
   - [Payment process](#payment-process)
   - [Running](#running)
 - [Contributing](#contributing)
@@ -88,20 +87,6 @@ Configuration options:
 Notification example:
 
 ![Notification example](doc/ntfy.png)
-
-### AI CAPTCHA solver (optional)
-
-The script uses an AI model to automatically solve CAPTCHAs during the reservation process. By default, it uses a Hugging Face Space, but you can configure a custom one if the default one is down.
-
-You can find alternative spaces here https://huggingface.co/spaces, search `Text_Captcha_breaker` and select a running space. To use it, add the following configuration at the end of your `config.json`:
-
-```json
-"ai": {
-  "space": "hf-username/Text_Captcha_breaker"
-}
-```
-
-**Note**: The custom space must be compatible with the expected API format (accepting an image input and returning text output), that why you need to select a `Text_Captcha_breaker` space.
 
 ### Payment process
 
