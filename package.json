@@ -15,7 +15,7 @@
     "@gradio/client": "^1.19.1",
     "dayjs": "^1.11.18",
     "ics": "^3.8.1",
-    "playwright": "^1.56.0"
+    "playwright": "^1.57.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.1",
