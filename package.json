@@ -9,6 +9,7 @@
   "scripts": {
     "postinstall": "npx playwright install chromium",
     "start": "node index.js",
+    "start-dry": "node index.js --dry-run",
     "eslint": "eslint ."
   },
   "dependencies": {

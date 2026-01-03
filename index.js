@@ -20,7 +20,8 @@ const bookTennis = async () => {
 
   console.log(`${dayjs().format()} - Browser started`)
   const page = await browser.newPage()
-  await page.route('https://captcha.liveidentity.com/**invisible-captcha-infos**', (route) => route.abort())
+  await page.route('https://captcha.liveidentity.com/captcha/public/frontend/api/v3/captcha-invisible/invisible-captcha-infos', (route) => route.abort())
+  await page.route('https://captcha.liveidentity.com/captcha/public/frontend/api/v3/captchas**', (route) => route.abort())
   page.setDefaultTimeout(120000)
   await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennis&view=start&full=1')
 
