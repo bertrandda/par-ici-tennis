@@ -1,0 +1,43 @@
+name: Tennis booking dry-run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  run-once:
+    name: dry-run script
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Create config.json from secrets
+        env:
+          CONFIG_JSON: ${{ secrets.CONFIG_JSON }}
+        run: |
+          set -euo pipefail
+          if [ -n "${CONFIG_JSON:-}" ]; then
+            printf "%s" "$CONFIG_JSON" > config.json
+            echo "config.json created from CONFIG_JSON secret"
+          else
+            echo "ERROR: Missing CONFIG_JSON secret." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run script
+        run: npm start
