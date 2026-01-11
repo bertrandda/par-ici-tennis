@@ -1,0 +1,86 @@
+name: Tennis booking
+
+on:
+  schedule:
+    # GitHub uses UTC; schedule at 06:00 and 07:00 UTC.
+    # A guard step will ensure we only run when it's 08:00 in Europe/Paris.
+    - cron: '0 6 * * *'
+    - cron: '0 7 * * *'
+
+permissions:
+  contents: read
+  actions: write # to disable this workflow after it runs
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  run-once:
+    name: Run script at 08:00 Europe/Paris and self-disable
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check local time is 08:00 Europe/Paris
+        id: timecheck
+        shell: bash
+        run: |
+          TZ=Europe/Paris current_hour=$(date +%H)
+          echo "Local Europe/Paris hour: $current_hour"
+          if [ "$current_hour" = "08" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.timecheck.outputs.should_run == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        if: steps.timecheck.outputs.should_run == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Create config.json from variables
+        env:
+          CONFIG_JSON: ${{ vars.CONFIG_JSON }}
+        run: |
+          set -euo pipefail
+          if [ -n "${CONFIG_JSON:-}" ]; then
+            printf "%s" "$CONFIG_JSON" > config.json
+            echo "config.json created from CONFIG_JSON secret"
+          else
+            echo "ERROR: Missing CONFIG_JSON secret." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        if: steps.timecheck.outputs.should_run == 'true'
+        run: npm ci --production --ignore-scripts
+
+      - name: Install Playwright browser (only-shell)
+        if: steps.timecheck.outputs.should_run == 'true'
+        run: npx playwright install chromium --only-shell
+
+      - name: Run script
+        if: steps.timecheck.outputs.should_run == 'true'
+        env:
+          ACCOUNT_EMAIL: ${{ secrets.ACCOUNT_EMAIL }}
+          ACCOUNT_PASSWORD: ${{ secrets.ACCOUNT_PASSWORD }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_DOMAIN: ${{ secrets.NTFY_DOMAIN }}
+        run: npm start
+
+      - name: Self-disable this workflow (GitHub CLI)
+        if: steps.timecheck.outputs.should_run == 'true' && always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          echo "GitHub CLI version:" && gh --version
+          echo "Disabling workflow using gh..."
+          # Disable this workflow so it won't run automatically the next day
+          gh workflow disable .github/workflows/book-tennis.yml
+          echo "Workflow disabled. Re-enable it manually from the Actions tab when needed."
