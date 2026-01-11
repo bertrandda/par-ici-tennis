@@ -39,8 +39,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --production --ignore-scripts
       
-      - name: Install Playwright browser (shell-only)
-        run: npx playwright install chromium --shell-only
+      - name: Install Playwright browser (only-shell)
+        run: npx playwright install chromium --only-shell
 
       - name: Run script
         env:
@@ -48,4 +48,4 @@ jobs:
           ACCOUNT_PASSWORD: ${{ secrets.ACCOUNT_PASSWORD }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           NTFY_DOMAIN: ${{ secrets.NTFY_DOMAIN }}
-        run: npm start-dry
+        run: npm run start-dry
