@@ -24,7 +24,7 @@ jobs:
         id: timecheck
         shell: bash
         run: |
-          TZ=Europe/Paris current_hour=$(date +%H)
+          current_hour=$(TZ='Europe/Paris' date +'%H')
           echo "Local Europe/Paris hour: $current_hour"
           if [ "$current_hour" = "08" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
