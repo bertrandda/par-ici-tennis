@@ -23,9 +23,9 @@ jobs:
         with:
           node-version: 24
 
-      - name: Create config.json from secrets
+      - name: Create config.json from variables
         env:
-          CONFIG_JSON: ${{ secrets.CONFIG_JSON }}
+          CONFIG_JSON: ${{ vars.CONFIG_JSON }}
         run: |
           set -euo pipefail
           if [ -n "${CONFIG_JSON:-}" ]; then
@@ -37,7 +37,15 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --production --ignore-scripts
+      
+      - name: Install Playwright browser (shell-only)
+        run: npx playwright install chromium --shell-only
 
       - name: Run script
-        run: npm start
+        env:
+          ACCOUNT_EMAIL: ${{ secrets.ACCOUNT_EMAIL }}
+          ACCOUNT_PASSWORD: ${{ secrets.ACCOUNT_PASSWORD }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_DOMAIN: ${{ secrets.NTFY_DOMAIN }}
+        run: npm start-dry

@@ -26,8 +26,8 @@ const bookTennis = async () => {
   await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennis&view=start&full=1')
 
   await page.click('#button_suivi_inscription')
-  await page.fill('#username', config.account.email)
-  await page.fill('#password', config.account.password)
+  await page.fill('#username', config?.account?.email || process.env.ACCOUNT_EMAIL)
+  await page.fill('#password', config?.account?.password || process.env.ACCOUNT_PASSWORD)
   await page.click('#form-login >> button')
 
   console.log(`${dayjs().format()} - User connected`)
@@ -38,8 +38,9 @@ const bookTennis = async () => {
   try {
     const locations = !Array.isArray(config.locations) ? Object.keys(config.locations) : config.locations
     locationsLoop:
-    for (const location of locations) {
-      console.log(`${dayjs().format()} - Search at ${location}`)
+    for (const [i, location] of locations.entries()) {
+      const logLocation = process.env.GITHUB_ACTIONS ? `location ${i + 1}` : location
+      console.log(`${dayjs().format()} - Search at ${logLocation}`)
       await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=recherche&view=recherche_creneau#!')
 
       // select tennis location
@@ -92,7 +93,7 @@ const bookTennis = async () => {
       }
 
       if (await page.title() !== 'Paris | TENNIS - Reservation') {
-        console.log(`${dayjs().format()} - Failed to find reservation for ${location}`)
+        console.log(`${dayjs().format()} - Failed to find reservation for ${logLocation}`)
         continue
       }
 
@@ -118,8 +119,8 @@ const bookTennis = async () => {
       await paymentMode.fill('existingTicket')
 
       if (DRY_RUN_MODE) {
-        console.log(`${dayjs().format()} - Fausse réservation faite : ${location}`)
-        console.log(`pour le ${date.format('YYYY/MM/DD')} à ${selectedHour}h`)
+        console.log(`${dayjs().format()} - Fausse réservation faite : ${logLocation}`)
+        if (!process.env.GITHUB_ACTIONS) console.log(`pour le ${date.format('YYYY/MM/DD')} à ${selectedHour}h`)
         console.log('----- DRY RUN END -----')
         console.log('Pour réellement réserver un crénau, relancez le script sans le paramètre --dry-run')
 
@@ -140,9 +141,13 @@ const bookTennis = async () => {
       const dateStr = (await (await page.$('.date')).textContent()).trim().replace(/( ){2,}/g, ' ')
       const court = (await (await page.$('.court')).textContent()).trim().replace(/( ){2,}/g, ' ')
 
-      console.log(`${dayjs().format()} - Réservation faite : ${address}`)
-      console.log(`pour le ${dateStr}`)
-      console.log(`sur le ${court}`)
+      if (!process.env.GITHUB_ACTIONS) {
+        console.log(`${dayjs().format()} - Réservation faite : ${address}`)
+        console.log(`pour le ${dateStr}`)
+        console.log(`sur le ${court}`)
+      } else {
+        console.log('Réservation faite, regardez vos emails ou rendez-vous sur votre compte tennis.paris.fr pour plus de détails sur votre réservation.')
+      }
 
       const [day, month, year] = [date.date(), date.month() + 1, date.year()]
       const hourMatch = dateStr.match(/(\d{2})h/)
@@ -163,9 +168,14 @@ const bookTennis = async () => {
           return
         }
 
-        writeFileSync('event.ics', value)
-        if (config.ntfy?.enable === true) {
-          await notify(Buffer.from(value, 'utf8'), `Confirmation pour le ${date.format('DD/MM/YYYY')}`, config.ntfy)
+        if (!process.env.GITHUB_ACTIONS) {
+          writeFileSync('event.ics', value)
+        }
+        if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
+          await notify(Buffer.from(value, 'utf8'), `Confirmation pour le ${date.format('DD/MM/YYYY')} - ${hour}h`, {
+            domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
+            topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
+          })
         }
       })
       break
