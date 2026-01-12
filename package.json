@@ -1,11 +1,24 @@
 {
   "name": "par-ici-tennis",
   "version": "1.0.0",
-  "description": "Script to book tennis court automatically",
+  "description": "Script to book tennis court in Paris automatically",
+  "keywords": [
+    "automation",
+    "sport",
+    "tennis",
+    "padel"
+  ],
+  "homepage": "https://github.com/bertrandda/par-ici-tennis",
+  "bugs": "https://github.com/bertrandda/par-ici-tennis/issues",
   "main": "index.js",
   "author": "Bertrand d'Aure",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bertrandda/par-ici-tennis.git"
+  },
+  "packageManager": "npm@11.6.2",
   "scripts": {
     "postinstall": "npx playwright install chromium",
     "start": "node index.js",
