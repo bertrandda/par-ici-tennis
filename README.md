@@ -96,7 +96,7 @@ To pass the payement phase without trouble you need a "carnet de réservation", 
 
 ### Running
 
-#### On your machine
+#### <ins>On your machine</ins>
 
 To run this project locally, install the dependencies
 
@@ -118,7 +118,7 @@ npm run start-dry
 
 You can start script automatically using cron or equivalent
 
-#### Using GitHub Actions (beta)
+#### <ins>Using GitHub Actions (beta)</ins>
 
 > [!IMPORTANT]
 > Due to GitHub Actions limitations during high load on their servers, scheduled triggers may not run exactly at 08:00. Improvements are in progress to make the booking more reliable even with a slight delay.
