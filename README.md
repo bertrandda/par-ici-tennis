@@ -15,7 +15,7 @@ Script to automatically book a tennis court in Paris (on https://tennis.paris.fr
   - [Payment process](#payment-process)
   - [Running](#running)
     - [On your machine](#on-your-machine)
-    - [Running with GitHub Actions](#running-with-github-actions)
+    - [Using GitHub Actions (beta)](#using-github-actions-beta)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -118,7 +118,12 @@ npm run start-dry
 
 You can start script automatically using cron or equivalent
 
-#### Running with GitHub Actions
+#### Using GitHub Actions (beta)
+
+> [!IMPORTANT]
+> Due to GitHub Actions limitations during high load on their servers, scheduled triggers may not run exactly at 08:00. Improvements are in progress to make the booking more reliable even with a slight delay.
+>
+> For perfect timing, consider use your [own server or computer](#On-your-machine).
 
 You can automate the booking using GitHub Actions workflows. The repository includes pre-configured workflows:
 
