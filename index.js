@@ -172,17 +172,25 @@ const bookTennis = async () => {
           writeFileSync('event.ics', value)
         }
         if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
-          await notify(Buffer.from(value, 'utf8'), `Confirmation pour le ${date.format('DD/MM/YYYY')} - ${hour}h`, {
-            domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
-            topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
-          })
+          await notify(Buffer.from(value, 'utf8'), 'event.ics',
+            `Confirmation pour le ${date.format('DD/MM/YYYY')} - ${hour}h`, {
+              domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
+              topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
+            })
         }
       })
       break
     }
   } catch (e) {
     console.log(e)
-    await page.screenshot({ path: 'img/failure.png' })
+    const screenshot = await page.screenshot({ path: 'img/failure.png' })
+
+    if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
+      await notify(screenshot, 'failure.png', 'Erreur lors de l\'execution du programme.', {
+        domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
+        topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
+      })
+    }
   }
 
   await browser.close()
