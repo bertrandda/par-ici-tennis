@@ -65,8 +65,15 @@ const bookTennis = async () => {
       for (const hour of config.hours) {
         const dateDeb = `[datedeb="${date.format('YYYY/MM/DD')} ${hour}:00:00"]`
         if (await page.$(dateDeb)) {
-          if (await page.isHidden(dateDeb)) {
-            await page.click(`#head${location.replaceAll(' ', '')}${hour}h .panel-title`)
+          // Fix: Use JavaScript to expand accordion instead of clicking
+          const accordionSelector = `#collapse${location.replaceAll(' ', '')}${hour}h`
+          const accordionElement = await page.$(accordionSelector)
+          if (accordionElement) {
+            await accordionElement.evaluate(el => {
+              el.classList.add('in')
+              el.style.display = 'block'
+            })
+            await page.waitForTimeout(300)
           }
 
           const courtNumbers = !Array.isArray(config.locations) ? config.locations[location] : []
@@ -85,7 +92,11 @@ const bookTennis = async () => {
               continue
             }
             selectedHour = hour
-            await page.click(bookSlotButton)
+            // Fix: Use JavaScript click and wait for navigation
+            await Promise.all([
+              page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+              page.$eval(bookSlotButton, el => el.click())
+            ])
 
             break hoursLoop
           }
