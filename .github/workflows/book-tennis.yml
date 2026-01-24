@@ -3,8 +3,8 @@ name: Tennis booking
 on:
   schedule:
     # GitHub uses UTC; schedule at 05:45 and 06:45 UTC.
-    # A guard step will ensure we only run when it's 08:00 in Europe/Paris.
-    # Run 15 minutes early to account for possible delays in GitHub Actions scheduling.
+    # This corresponds to 07:45 Europe/Paris, giving 15 minutes to setup before 08:00.
+    # Two cron times to handle both winter (UTC+1) and summer (UTC+2) time.
     - cron: '45 5 * * *'
     - cron: '45 6 * * *'
   workflow_dispatch:
