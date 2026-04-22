@@ -93,11 +93,8 @@ const bookTennis = async () => {
               continue
             }
             selectedHour = hour
-            // Fix: Use JavaScript click and wait for navigation
-            await Promise.all([
-              page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-              page.$eval(bookSlotButton, el => el.click())
-            ])
+            await page.$eval(bookSlotButton, el => el.click())
+            await page.waitForURL('**', { waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {})
 
             break hoursLoop
           }
