@@ -1,12 +1,16 @@
 import { chromium } from 'playwright'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat.js'
+import utc from 'dayjs/plugin/utc.js'
+import timezone from 'dayjs/plugin/timezone.js'
 import { writeFileSync } from 'fs'
 import { createEvent } from 'ics'
 import { config } from './staticFiles.js'
 import { notify } from './lib/ntfy.js'
 
 dayjs.extend(customParseFormat)
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const bookTennis = async () => {
   const DRY_RUN_MODE = process.argv.includes('--dry-run')
@@ -55,6 +59,14 @@ const bookTennis = async () => {
       await page.waitForSelector(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
       await page.click(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
       await page.waitForSelector('.date-picker', { state: 'hidden' })
+
+      const nowParis = dayjs().tz('Europe/Paris')
+      const target8AM = nowParis.hour(8).minute(0).second(0).millisecond(0)
+      if (nowParis.isBefore(target8AM)) {
+        const waitMs = target8AM.diff(nowParis)
+        console.log(`${dayjs().format()} - Attente jusqu'à 08h00:00 Paris (${(waitMs / 1000).toFixed(1)}s)`)
+        await new Promise(resolve => setTimeout(resolve, waitMs))
+      }
 
       await page.click('#rechercher')
 
