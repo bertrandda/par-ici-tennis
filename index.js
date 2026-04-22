@@ -37,6 +37,7 @@ const bookTennis = async () => {
 
   try {
     const locations = !Array.isArray(config.locations) ? Object.keys(config.locations) : config.locations
+    let booked = false
     locationsLoop:
     for (const [i, location] of locations.entries()) {
       const logLocation = process.env.GITHUB_ACTIONS ? `location ${i + 1}` : location
@@ -73,7 +74,7 @@ const bookTennis = async () => {
               el.classList.add('in')
               el.style.display = 'block'
             })
-            await page.waitForTimeout(300)
+            await page.waitForTimeout(150)
           }
 
           const courtNumbers = !Array.isArray(config.locations) ? config.locations[location] : []
@@ -104,7 +105,7 @@ const bookTennis = async () => {
       }
 
       if (await page.title() !== 'Paris | TENNIS - Reservation') {
-        console.log(`${dayjs().format()} - Failed to find reservation for ${logLocation}`)
+        console.log(`${dayjs().format()} - Aucun créneau disponible pour ${logLocation}`)
         continue
       }
 
@@ -138,6 +139,7 @@ const bookTennis = async () => {
         await page.click('#previous')
         await page.click('#btnCancelBooking')
 
+        booked = true
         break locationsLoop
       }
 
@@ -190,7 +192,19 @@ const bookTennis = async () => {
             })
         }
       })
+      booked = true
       break
+    }
+
+    if (!booked) {
+      const dateLabel = config.date ? dayjs(config.date, 'D/MM/YYYY').format('DD/MM/YYYY') : dayjs().add(6, 'days').format('DD/MM/YYYY')
+      console.log(`${dayjs().format()} - Aucun créneau trouvé sur aucun des ${locations.length} terrain(s) pour le ${dateLabel}`)
+      if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
+        await notify(null, null, `Aucun créneau disponible le ${dateLabel} sur ${locations.join(', ')}`, {
+          domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
+          topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
+        })
+      }
     }
   } catch (e) {
     console.log(e)
