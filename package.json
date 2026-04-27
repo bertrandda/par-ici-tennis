@@ -29,7 +29,7 @@
   "dependencies": {
     "@gradio/client": "^1.19.1",
     "dayjs": "^1.11.20",
-    "ics": "^3.11.0",
+    "ics": "^3.12.0",
     "playwright": "^1.59.1"
   },
   "devDependencies": {
