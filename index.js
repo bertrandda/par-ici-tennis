@@ -16,13 +16,13 @@ const bookTennis = async () => {
   }
 
   console.log(`${dayjs().format()} - Starting searching tennis`)
-  const browser = await chromium.launch({ headless: true, slowMo: 0, timeout: 120000 })
+  const browser = await chromium.launch({ headless: true, slowMo: 0, timeout: 90000 })
 
   console.log(`${dayjs().format()} - Browser started`)
   const page = await browser.newPage()
   await page.route('https://captcha.liveidentity.com/captcha/public/frontend/api/v3/captcha-invisible/invisible-captcha-infos', (route) => route.abort())
   await page.route('https://captcha.liveidentity.com/captcha/public/frontend/api/v3/captchas**', (route) => route.abort())
-  page.setDefaultTimeout(120000)
+  page.setDefaultTimeout(90000)
   await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennis&view=start&full=1')
 
   await page.click('#button_suivi_inscription')
@@ -64,23 +64,23 @@ const bookTennis = async () => {
       hoursLoop:
       for (const hour of config.hours) {
         const dateDeb = `[datedeb="${date.format('YYYY/MM/DD')} ${hour}:00:00"]`
-        if (await page.$(dateDeb)) {
+        if (await page.locator(dateDeb).count()) {
           if (await page.isHidden(dateDeb)) {
             await page.click(`#head${location.replaceAll(' ', '')}${hour}h .panel-title`)
           }
 
           const courtNumbers = !Array.isArray(config.locations) ? config.locations[location] : []
-          const slots = await page.$$(dateDeb)
+          const slots = await page.locator(dateDeb).all()
           for (const slot of slots) {
             const bookSlotButton = `[courtid="${await slot.getAttribute('courtid')}"]${dateDeb}`
             if (courtNumbers.length > 0) {
-              const courtName = (await (await page.$(`.court:left-of(${bookSlotButton})`)).innerText()).trim()
+              const courtName = (await page.locator(`.court:left-of(${bookSlotButton})`).innerText()).trim()
               if (!courtNumbers.includes(parseInt(courtName.match(/Court N°(\d+)/)[1]))) {
                 continue
               }
             }
 
-            const [priceType, courtType] = (await (await page.$(`.price-description:left-of(${bookSlotButton})`)).innerHTML()).split('<br>')
+            const [priceType, courtType] = (await page.locator(`.row.tennis-court:has(${bookSlotButton})`).locator('.price-description').innerHTML()).split('<br>')
             if (!config.priceType.includes(priceType) || !config.courtType.includes(courtType)) {
               continue
             }
@@ -100,7 +100,7 @@ const bookTennis = async () => {
       await page.waitForSelector('.order-steps-infos h2 >> text="1 / 3 - Validation du court"')
 
       for (const [i, player] of config.players.entries()) {
-        if (i > 0 && i < config.players.length) {
+        if (i > 0) {
           await page.click('.addPlayer')
         }
         await page.waitForSelector(`[name="player${i + 1}"]`)
@@ -111,7 +111,7 @@ const bookTennis = async () => {
       await page.keyboard.press('Enter')
 
       await page.waitForSelector('#order_select_payment_form #paymentMode', { state: 'attached' })
-      const paymentMode = await page.$('#order_select_payment_form #paymentMode')
+      const paymentMode = page.locator('#order_select_payment_form #paymentMode')
       await paymentMode.evaluate(el => {
         el.removeAttribute('readonly')
         el.style.display = 'block'
@@ -130,16 +130,16 @@ const bookTennis = async () => {
         break locationsLoop
       }
 
-      const submit = await page.$('#order_select_payment_form #envoyer')
-      submit.evaluate(el => el.classList.remove('hide'))
+      const submit = page.locator('#order_select_payment_form #envoyer')
+      await submit.evaluate(el => el.classList.remove('hide'))
       await submit.click()
 
       await page.waitForSelector('.confirmReservation')
 
       // Extract reservation details
-      const address = (await (await page.$('.address')).textContent()).trim().replace(/( ){2,}/g, ' ')
-      const dateStr = (await (await page.$('.date')).textContent()).trim().replace(/( ){2,}/g, ' ')
-      const court = (await (await page.$('.court')).textContent()).trim().replace(/( ){2,}/g, ' ')
+      const address = (await page.locator('.address').textContent()).trim().replace(/( ){2,}/g, ' ')
+      const dateStr = (await page.locator('.date').textContent()).trim().replace(/( ){2,}/g, ' ')
+      const court = (await page.locator('.court').textContent()).trim().replace(/( ){2,}/g, ' ')
 
       if (!process.env.GITHUB_ACTIONS) {
         console.log(`${dayjs().format()} - Réservation faite : ${address}`)
@@ -162,23 +162,26 @@ const bookTennis = async () => {
         location: address,
         status: 'CONFIRMED',
       }
-      createEvent(event, async (error, value) => {
-        if (error) {
-          console.log('ICS creation error:', error)
-          return
-        }
 
-        if (!process.env.GITHUB_ACTIONS) {
-          writeFileSync('event.ics', value)
-        }
-        if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
-          await notify(Buffer.from(value, 'utf8'), 'event.ics',
-            `Confirmation pour le ${date.format('DD/MM/YYYY')} - ${hour}h`, {
-              domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
-              topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
-            })
-        }
-      })
+      const createdEvent = createEvent(event)
+      if (createdEvent.error) {
+        console.log('ICS creation error:', createdEvent.error)
+
+        break
+      }
+
+      const { value } = createdEvent
+      if (!process.env.GITHUB_ACTIONS) {
+        writeFileSync('event.ics', value)
+      }
+      if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
+        await notify(Buffer.from(value, 'utf8'), 'event.ics',
+          `Confirmation pour le ${date.format('DD/MM/YYYY')} - ${hour}h`, {
+            domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
+            topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
+          })
+      }
+
       break
     }
   } catch (e) {
