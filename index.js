@@ -16,13 +16,13 @@ const bookTennis = async () => {
   }
 
   console.log(`${dayjs().format()} - Starting searching tennis`)
-  const browser = await chromium.launch({ headless: true, slowMo: 0, timeout: 120000 })
+  const browser = await chromium.launch({ headless: true, slowMo: 0, timeout: 90000 })
 
   console.log(`${dayjs().format()} - Browser started`)
   const page = await browser.newPage()
   await page.route('https://captcha.liveidentity.com/captcha/public/frontend/api/v3/captcha-invisible/invisible-captcha-infos', (route) => route.abort())
   await page.route('https://captcha.liveidentity.com/captcha/public/frontend/api/v3/captchas**', (route) => route.abort())
-  page.setDefaultTimeout(120000)
+  page.setDefaultTimeout(90000)
   await page.goto('https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=tennis&view=start&full=1')
 
   await page.click('#button_suivi_inscription')
@@ -162,23 +162,26 @@ const bookTennis = async () => {
         location: address,
         status: 'CONFIRMED',
       }
-      createEvent(event, async (error, value) => {
-        if (error) {
-          console.log('ICS creation error:', error)
-          return
-        }
 
-        if (!process.env.GITHUB_ACTIONS) {
-          writeFileSync('event.ics', value)
-        }
-        if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
-          await notify(Buffer.from(value, 'utf8'), 'event.ics',
-            `Confirmation pour le ${date.format('DD/MM/YYYY')} - ${hour}h`, {
-              domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
-              topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
-            })
-        }
-      })
+      const createdEvent = createEvent(event)
+      if (createdEvent.error) {
+        console.log('ICS creation error:', createdEvent.error)
+
+        break
+      }
+
+      const { value } = createdEvent
+      if (!process.env.GITHUB_ACTIONS) {
+        writeFileSync('event.ics', value)
+      }
+      if (config.ntfy?.enable === true || process.env.NTFY_TOPIC) {
+        await notify(Buffer.from(value, 'utf8'), 'event.ics',
+          `Confirmation pour le ${date.format('DD/MM/YYYY')} - ${hour}h`, {
+            domain: config?.ntfy?.domain || process.env.NTFY_DOMAIN,
+            topic: config?.ntfy?.topic || process.env.NTFY_TOPIC,
+          })
+      }
+
       break
     }
   } catch (e) {
