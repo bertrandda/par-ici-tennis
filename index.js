@@ -40,6 +40,15 @@ const bookTennis = async () => {
   await page.waitForSelector('.main-informations')
 
   try {
+    // Attendre 07:59:45 sur le dashboard (stable) avant de naviguer vers la recherche
+    const prewaitNow = dayjs().tz('Europe/Paris')
+    const prewaitTarget = prewaitNow.hour(7).minute(59).second(45).millisecond(0)
+    if (prewaitNow.isBefore(prewaitTarget)) {
+      const waitMs = prewaitTarget.diff(prewaitNow)
+      console.log(`${dayjs().format()} - Attente jusqu'à 07:59:45 (${(waitMs / 1000).toFixed(1)}s)`)
+      await new Promise(resolve => setTimeout(resolve, waitMs))
+    }
+
     const locations = !Array.isArray(config.locations) ? Object.keys(config.locations) : config.locations
     let booked = false
     locationsLoop:
@@ -59,14 +68,6 @@ const bookTennis = async () => {
       await page.waitForSelector(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
       await page.click(`[dateiso="${date.format('DD/MM/YYYY')}"]`)
       await page.waitForSelector('.date-picker', { state: 'hidden' })
-
-      const nowParis = dayjs().tz('Europe/Paris')
-      const target8AM = nowParis.hour(8).minute(0).second(0).millisecond(0)
-      if (nowParis.isBefore(target8AM)) {
-        const waitMs = target8AM.diff(nowParis)
-        console.log(`${dayjs().format()} - Attente jusqu'à 08h00:00 Paris (${(waitMs / 1000).toFixed(1)}s)`)
-        await new Promise(resolve => setTimeout(resolve, waitMs))
-      }
 
       await page.click('#rechercher')
 

@@ -4,7 +4,7 @@ Script to automatically book a tennis court in Paris (on https://tennis.paris.fr
 
 > "Par ici" mean "this way" in french. The "Parisii" were a Gallic tribe that dwelt on the banks of the river Seine. They lived on lands now occupied by the modern city of Paris. The project name can be interpreted as "For a Parisian tennis, follow this way"
 
-**NOTE**: They added a CAPTCHA during reservation process. The latest version **should** pass through. If it fails, open an issue with error logs, I will try to find an other way.
+**NOTE**: They added a CAPTCHA during the reservation process. The latest version **should** pass through. If it fails, open an issue with error logs, I will try to find another way.
 
 ## Table of Contents
 
@@ -54,13 +54,13 @@ You can use two formats for the `locations` field:
 
 Choose the format that best matches your preferences.
 
-- `date` (optional) a string representing a date formated D/M/YYYY, do not set the date to automatically book 6 days in future as soon as the reservation slots opens
+- `date` (optional) a string representing a date formatted D/M/YYYY, do not set the date to automatically book 6 days in the future as soon as the reservation slots open
 
 - `hours` a list of hours ordered by preference
 
-- `priceType` an array containing price type you can book `Tarif plein` and/or `Tarif réduit`
+- `priceType` an array containing price types you can book `Tarif plein` and/or `Tarif réduit`
 
-- `courtType` an array containing court type you can book `Découvert` and/or `Couvert`
+- `courtType` an array containing court types you can book `Découvert` and/or `Couvert`
 
 - `players` list of players 3 max (without you)
 
@@ -69,7 +69,7 @@ Choose the format that best matches your preferences.
 You can configure the script to send notifications with the reservation details and the ics file via [ntfy](https://ntfy.sh), a simple pub-sub notification service.
 
 To receive notifications:
-- Choose a unique topic name (e.g., `YOUR-UNIQUE-TOPIC-NAME` choose something unique to avoid conflicts and complex because there is no password for subscription)
+- Choose a unique topic name (e.g., `YOUR-UNIQUE-TOPIC-NAME` — choose something unique and hard to guess, as there is no password protection for subscriptions)
 - Subscribe to your topic using the [ntfy mobile app](https://ntfy.sh/docs/subscribe/phone/) or [web interface](https://ntfy.sh/)
 
 To enable ntfy notifications in script, add the following configuration to your `config.json`:
@@ -83,7 +83,7 @@ To enable ntfy notifications in script, add the following configuration to your 
 
 Configuration options:
 - `enable`: set to `true` to enable ntfy notifications
-- `topic`: your unique ntfy topic name choose previously
+- `topic`: your unique ntfy topic name chosen previously
 - `domain` (optional): custom ntfy server domain (`ntfy.sh` used if empty)
 
 Notification example:
@@ -92,7 +92,7 @@ Notification example:
 
 ### Payment process
 
-To pass the payement phase without trouble you need a "carnet de réservation", be carefull you need a "carnet" that maches with your `priceType` & `courtType` [combination](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=rate&view=les_tarifs) selected previously
+To pass the payment phase without trouble you need a "carnet de réservation", be careful you need a "carnet" that matches your `priceType` & `courtType` [combination](https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=rate&view=les_tarifs) selected previously
 
 ### Running
 
@@ -116,14 +116,14 @@ To test your configuration, you can run this project in dry-run mode. It will ch
 npm run start-dry
 ```
 
-You can start script automatically using cron or equivalent
+You can start the script automatically using cron or equivalent
 
 #### <ins>Using GitHub Actions (beta)</ins>
 
 > [!IMPORTANT]
 > Due to GitHub Actions limitations during high load on their servers, scheduled triggers may not run exactly at 08:00. Improvements are in progress to make the booking more reliable even with a slight delay.
 >
-> For perfect timing, consider use your [own server or computer](#On-your-machine).
+> For perfect timing, consider using your [own server or computer](#On-your-machine).
 
 You can automate the booking using GitHub Actions workflows. The repository includes pre-configured workflows:
 
@@ -140,8 +140,8 @@ You can automate the booking using GitHub Actions workflows. The repository incl
      - `CONFIG_JSON`: the content of your `config.json` file (⚠️ without account credentials and ntfy config for security reasons). Without date line to always book 6 days in advance
 
 3. **Enable workflow:**
-   - The day before you want execute the script, go to the Actions tab and enable `Tennis booking` workflow
-   - The workflow runs the following day at 08:00 Paris time and automatically disables itself after running to avoid restart next days
+   - The day before you want to execute the script, go to the Actions tab and enable the `Tennis booking` workflow
+   - The workflow runs the following day at 08:00 Paris time and automatically disables itself after running to avoid restarting on subsequent days
    - Manually re-enable it from the Actions tab when you need to book again
 
 To test Github Actions config you can start `Tennis booking dry-run` workflow manually. It will check court availability but no reservations will be made.
