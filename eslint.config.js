@@ -1,6 +1,6 @@
 import globals from 'globals'
 import pluginJs from '@eslint/js'
-import stylisticJs from '@stylistic/eslint-plugin-js'
+import stylistic from '@stylistic/eslint-plugin'
 
 export default [
   {
@@ -8,13 +8,13 @@ export default [
   },
   {
     plugins: {
-      '@stylistic/js': stylisticJs
+      '@stylistic': stylistic
     },
     rules: {
       semi: ['error', 'never'],
       quotes: ['error', 'single'],
-      '@stylistic/js/indent': ['error', 2],
-      '@stylistic/js/eol-last': ['error', 'always']
+      '@stylistic/indent': ['error', 2],
+      '@stylistic/eol-last': ['error', 'always']
     }
   },
   {

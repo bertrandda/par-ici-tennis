@@ -1,0 +1,18 @@
+{
+  "sport": "tennis",
+  "locations": [
+    "Valeyre",
+    "Suzanne Lenglen"
+  ],
+  "hours": [
+    "18"
+  ],
+  "courtType": [
+    "Couvert"
+  ],
+  "courtSelection": "all",
+  "bookingAccount": "Roger Federer",
+  "consecutive": {
+    "bookingAccount": "Rafael Nadal"
+  }
+}

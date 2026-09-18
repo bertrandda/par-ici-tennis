@@ -1,43 +1,59 @@
 {
-  "name": "par-ici-tennis",
+  "name": "paris-tennis-tenibotty",
   "version": "1.0.0",
-  "description": "Script to book tennis court in Paris automatically",
+  "description": "Book Paris Tennis courts, schedule opening-time attempts and manage reservations with Hermes and Telegram",
   "keywords": [
     "automation",
     "sport",
     "tennis",
     "padel"
   ],
-  "homepage": "https://github.com/bertrandda/par-ici-tennis",
-  "bugs": "https://github.com/bertrandda/par-ici-tennis/issues",
+  "homepage": "https://github.com/RolandVrignon/paris-tennis-tenibotty",
+  "bugs": "https://github.com/RolandVrignon/paris-tennis-tenibotty/issues",
   "main": "index.js",
   "author": "Bertrand d'Aure",
   "license": "MIT",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bertrandda/par-ici-tennis.git"
+    "url": "git+https://github.com/RolandVrignon/paris-tennis-tenibotty.git"
   },
   "packageManager": "npm@11.6.2",
   "scripts": {
     "postinstall": "npx playwright install chromium",
     "start": "node index.js",
     "start-dry": "node index.js --dry-run",
+    "start-dry-debug": "node index.js --dry-run --debug",
+    "start-dry-headed": "node index.js --dry-run --headed",
+    "start-dry-headed-debug": "node index.js --dry-run --headed --debug",
+    "config:migrate": "node scripts/migrate-config.js --remove-source",
+    "booking:list": "node scripts/booking-manager.js list",
     "wait": "node scripts/wait-8-am.js",
-    "eslint": "eslint ."
+    "eslint": "eslint .",
+    "test": "node --test",
+    "clubs:list": "node scripts/tennis.js clubs list",
+    "clubs:find": "node scripts/tennis.js clubs find",
+    "reservations:list": "node scripts/tennis.js reservations list",
+    "reservations:cancel": "node scripts/tennis.js reservations cancel",
+    "booking:manage": "node scripts/booking-manager.js",
+    "hermes:install": "node scripts/install-hermes-skill.js",
+    "availability:monitor": "node scripts/monitor-availability.js",
+    "planning:scan": "node scripts/scan-public-planning.js",
+    "accounts:list": "node scripts/tennis.js accounts list",
+    "credits:list": "node scripts/tennis.js credits list",
+    "captcha:warmup": "node scripts/warm-captcha-space.js",
+    "reservation:transfer": "node scripts/transfer-reservation.js"
   },
   "dependencies": {
-    "@gradio/client": "^1.19.1",
-    "dayjs": "^1.11.20",
+    "@gradio/client": "^2.6.0",
+    "dayjs": "^1.11.23",
     "ics": "^3.12.0",
-    "playwright": "^1.60.0"
+    "playwright": "^1.63.0"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.25.1",
-    "@babel/plugin-syntax-import-assertions": "^7.25.6",
-    "@eslint/js": "^9.9.1",
-    "@stylistic/eslint-plugin-js": "^2.8.0",
-    "eslint": "^9.9.1",
-    "globals": "^15.9.0"
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0"
   }
 }

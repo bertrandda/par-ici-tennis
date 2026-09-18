@@ -1,0 +1,47 @@
+{
+  "bookingAccounts": [
+    {
+      "name": "Roger Federer",
+      "email": "user.name@host.com",
+      "password": "YOUR_PASSWORD",
+      "priceType": [
+        "Gratuité"
+      ],
+      "defaultPlayers": [
+        {
+          "firstName": "Rafael",
+          "lastName": "Nadal"
+        }
+      ]
+    },
+    {
+      "name": "Rafael Nadal",
+      "email": "second.player@host.com",
+      "password": "SECOND_PLAYER_PASSWORD",
+      "priceType": [
+        "Tarif plein"
+      ],
+      "defaultPlayers": [
+        {
+          "firstName": "Roger",
+          "lastName": "Federer"
+        }
+      ]
+    }
+  ],
+  "monitoringAccount": {
+    "name": "Monitoring",
+    "email": "",
+    "password": ""
+  },
+  "ai": {
+    "enable": true,
+    "space": "Nischay103/captcha_recognition",
+    "maxAttempts": 2,
+    "timeoutMs": 30000
+  },
+  "ntfy": {
+    "enable": false,
+    "topic": "YOUR-OWN-TOPIC"
+  }
+}

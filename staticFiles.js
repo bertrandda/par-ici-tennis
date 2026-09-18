@@ -1,4 +1,6 @@
-import config from './config.json' with { type: 'json' }
+import { loadConfig } from './lib/config.js'
+
+const config = loadConfig()
 
 export {
   config,

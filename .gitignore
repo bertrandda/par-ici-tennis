@@ -1,4 +1,13 @@
 node_modules/
 config.json
+config.fixed.json
+config.request.json
+config.padel.json
+.config*.json.sw?
+config*.json~
+config*.json.*.tmp
+config*.json
+!config*.json.sample
 img/
+logs/
 *.ics
